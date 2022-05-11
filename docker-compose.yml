@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  location-recognition-server:
+    container_name: location-recognition
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: harrontech/landmark-detection-docker:latest
+    ports:
+      - 8080:8080
+    networks:
+      - spring-cloud-network
+    environment:
+      - recognizer_area_tfModel=/Users/arnasmitkevicius/PycharmProjects/location_recognition_training/location_recognition_model
+
+networks:
+  spring-cloud-network:
+    driver: bridge

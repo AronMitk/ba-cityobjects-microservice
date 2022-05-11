@@ -1,0 +1,38 @@
+server:
+  port: 8085
+
+spring:
+  data:
+    mongodb:
+      host: 127.0.0.1
+      port: 27017
+      database: landmarks_detector
+
+admin:
+  auth:
+    username: root
+    password: admin
+
+recognizer:
+  area:
+    tfModel: /Users/arnasmitkevicius/PycharmProjects/location_recognition_training/location_recognition_model
+    areas:
+      - LTVLN1
+      - LTVLN2
+      - LTVLN3
+      - LTVLN4
+      - LTVLN5
+      - LTVLN6
+      - LTVLN7
+      - LTVLN8
+      -
+  landmark:
+    url: http://127.0.0.1:8000/
+
+
+file:
+  upload-dir: /Users/arnasmitkevicius/IdeaProjects/ba-vor-backend/storage
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui-custom.html
