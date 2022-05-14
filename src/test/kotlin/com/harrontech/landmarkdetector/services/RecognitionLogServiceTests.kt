@@ -1,5 +1,6 @@
 package com.harrontech.landmarkdetector.services
 
+import com.harrontech.landmarkdetector.domains.models.log.ProbabilityModel
 import com.harrontech.landmarkdetector.domains.requests.RecognitionRequest
 import com.harrontech.landmarkdetector.domains.requests.common.CoordinatesRequest
 import com.harrontech.landmarkdetector.domains.requests.log.BugReportRequest
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.util.*
 
 @Testcontainers
 @SpringBootTest
@@ -50,7 +52,14 @@ class RecognitionLogServiceTests {
             )
         )
 
-        recognitionLogService.initLog(recognitionRequest)
+        var probability = ProbabilityModel(
+            id = UUID.randomUUID().toString(),
+            areaProbs = null,
+            objectProbs = null,
+            recognizedObjectID = "response"
+        )
+
+        recognitionLogService.initLog(recognitionRequest, probability)
         assertThat(repository.findAll().size, `is`(1))
     }
 
@@ -76,7 +85,14 @@ class RecognitionLogServiceTests {
             )
         )
 
-        var token = recognitionLogService.initLog(recognitionRequest).id
+        var probability = ProbabilityModel(
+            id = UUID.randomUUID().toString(),
+            areaProbs = null,
+            objectProbs = null,
+            recognizedObjectID = "response"
+        )
+
+        var token = recognitionLogService.initLog(recognitionRequest, probability).id
 
         var bugReportRequest = BugReportRequest(
             title = "Bugas",

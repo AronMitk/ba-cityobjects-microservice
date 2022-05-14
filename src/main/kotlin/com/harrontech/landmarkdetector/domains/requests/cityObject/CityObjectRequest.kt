@@ -11,7 +11,8 @@ data class CityObjectRequest(
     val type: CityObjectTypeRequest,
     val description: String,
     val beforeYouGo: String,
-    val coordinates: CoordinatesRequest
+    val coordinates: CoordinatesRequest,
+    val imageUrl: String
 )
 
 fun CityObjectRequest.mapTo(): CityObjectModel {
@@ -21,6 +22,7 @@ fun CityObjectRequest.mapTo(): CityObjectModel {
         type = this.type.mapTo(),
         description = this.description,
         beforeYouGo = this.beforeYouGo,
-        coordinates = this.coordinates.mapTo()
+        coordinates = this.coordinates.mapTo(),
+        imageUrl = this.imageUrl
     )
 }

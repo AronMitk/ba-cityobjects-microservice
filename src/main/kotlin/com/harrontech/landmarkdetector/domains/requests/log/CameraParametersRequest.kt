@@ -7,7 +7,10 @@ data class CameraParametersRequest(
     var horizontalFOV: Double = 90.0
 )
 
-fun CameraParametersRequest.mapTo(): CameraParametersModel {
+fun CameraParametersRequest?.mapTo(): CameraParametersModel? {
+    if (this == null)
+        return null
+
     return CameraParametersModel(
         verticalFOV = this.verticalFOV,
         horizontalFOV = this.horizontalFOV

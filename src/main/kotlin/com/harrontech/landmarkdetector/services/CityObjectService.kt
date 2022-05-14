@@ -16,10 +16,13 @@ class CityObjectService(val repository: CityObjectRepository) {
 
     fun getCityObject(id: String) = repository.findById(id)
 
-    fun getAll() = repository.findAll()
+    fun getAll(): MutableList<CityObjectModel> = repository.findAll()
 
     fun find(text: String): List<CityObjectModel> {
-        return repository.findAll()
+        return repository.findAll().filter {
+            it.title.lowercase().contains(text.lowercase()) ||
+                it.type.name.lowercase().contains(text.lowercase())
+        }
     }
 
     fun updateCityObject(id: String, request: CityObjectRequest): CityObjectModel {

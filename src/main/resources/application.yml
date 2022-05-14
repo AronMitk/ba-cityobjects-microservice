@@ -25,10 +25,9 @@ recognizer:
       - LTVLN6
       - LTVLN7
       - LTVLN8
-      -
   landmark:
     url: http://127.0.0.1:8000/
-
+    mock: true
 
 file:
   upload-dir: /Users/arnasmitkevicius/IdeaProjects/ba-vor-backend/storage

@@ -9,7 +9,10 @@ data class OrientationRequest(
     var roll: Double
 )
 
-fun OrientationRequest.mapTo(): OrientationModel {
+fun OrientationRequest?.mapTo(): OrientationModel? {
+    if(this == null)
+        return null
+
     return OrientationModel(
         azimuth = this.azimuth,
         pitch = this.pitch,

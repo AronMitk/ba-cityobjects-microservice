@@ -2,13 +2,13 @@ package com.harrontech.landmarkdetector.services
 
 import com.harrontech.landmarkdetector.config.FileStorageConfig
 import com.harrontech.landmarkdetector.domains.models.log.ImageDataContainerModel
+import com.harrontech.landmarkdetector.domains.models.log.ProbabilityModel
 import com.harrontech.landmarkdetector.domains.models.log.RecognitionLogModel
 import com.harrontech.landmarkdetector.domains.requests.RecognitionRequest
 import com.harrontech.landmarkdetector.domains.requests.log.BugReportRequest
 import com.harrontech.landmarkdetector.domains.requests.log.mapTo
 import com.harrontech.landmarkdetector.repositories.RecognizerLogRepository
 import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.springframework.stereotype.Service
@@ -21,64 +21,34 @@ import java.util.*
 class RecognitionLogService(val logger: RecognizerLogRepository, var storageConfig: FileStorageConfig) {
 
     fun saveImage(bytes: ByteArray): Path? {
-        val destinationFile: Path = Paths.get(storageConfig.uploadDir, Date().time.toString() + "-" + UUID.randomUUID() + ".jpg")
+        val destinationFile: Path = Paths.get(storageConfig.uploadDir, Date().time.toString() + "-" + UUID.randomUUID().toString().replace("-", "") + ".jpg")
         return Files.write(destinationFile, bytes)
     }
 
-    fun initLog(request: RecognitionRequest): RecognitionLogModel {
+    fun initLog(request: RecognitionRequest, probabilities: ProbabilityModel): RecognitionLogModel {
         val log = RecognitionLogModel(
             id = UUID.randomUUID().toString(),
             date = Clock.System.now().toLocalDateTime(TimeZone.UTC),
             images = ImageDataContainerModel(
                 imageURL = saveImage(request.image).toString(),
                 userData = request.deviceData.mapTo(),
-                probabilities = null
+                probabilities = probabilities
             ),
-            recognizedObjectID = null
+            recognizedObjectID = probabilities.recognizedObjectID,
+            isValid = true
         )
 
         return logger.save(log)
     }
 
-    fun updateLog(recognitionLog: RecognitionLogModel): RecognitionLogModel {
-        return logger.save(recognitionLog)
-    }
-
-    fun reportBug(bugReportRequest: BugReportRequest): RecognitionLogModel {
+    fun reportBug(bugReportRequest: BugReportRequest): RecognitionLogModel? {
         val recognitionLog = logger.findById(bugReportRequest.recognitionToken)
 
-        recognitionLog.ifPresent {
-            it.isValid = false
-            it.bugReport = bugReportRequest.mapTo()
-            logger.save(it)
-        }
-
-        return recognitionLog.get()
-    }
-
-    fun delete(fromDate: LocalDateTime?, toDate: LocalDateTime?): Boolean {
-        logger.findAll().filter {
-            dateFilter(it, fromDate, toDate)
-        }.forEach {
-            logger.deleteById(it.id)
-        }
-
-        return true
-    }
-
-    fun dateFilter(model: RecognitionLogModel, fromDate: LocalDateTime?, toDate: LocalDateTime?): Boolean {
-        if (fromDate != null && toDate != null)
-            return model.date >= fromDate && model.date <= toDate
-
-        if (fromDate == null && toDate != null)
-            return model.date <= toDate
-
-        if (fromDate != null && toDate == null)
-            return model.date >= fromDate
-
-        if (fromDate == null && toDate == null)
-            return true
-
-        return false
+        return recognitionLog
+            .map {
+                it.isValid = false
+                it.bugReport = bugReportRequest.mapTo()
+                logger.save(it)
+            }.orElse(null)
     }
 }
