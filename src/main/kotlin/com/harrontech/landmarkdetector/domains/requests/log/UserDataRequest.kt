@@ -6,9 +6,9 @@ import com.harrontech.landmarkdetector.domains.requests.common.mapTo
 
 data class UserDataRequest(
     var coordinates: CoordinatesRequest,
-    var orientation: OrientationRequest,
-    var clickCoordinates: ScreenClickCoordinatesRequest,
-    var cameraParameters: CameraParametersRequest
+    var orientation: OrientationRequest? = null,
+    var clickCoordinates: ScreenClickCoordinatesRequest? = null,
+    var cameraParameters: CameraParametersRequest? = null
 )
 
 fun UserDataRequest.mapTo(): DeviceInfoModel {

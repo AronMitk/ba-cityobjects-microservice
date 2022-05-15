@@ -1,6 +1,7 @@
 package com.harrontech.landmarkdetector.services.recognition.layers
 
 import com.harrontech.landmarkdetector.config.TfModelsConfig
+import com.harrontech.landmarkdetector.services.recognition.mock.ObjectRecognitionLayerMock
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -12,11 +13,12 @@ import org.springframework.web.client.RestTemplate
 @Service
 class ObjectRecognitionLayer(val config: TfModelsConfig) : RecognitionLayer() {
 
-    fun getProbabilities(area: String, image: ByteArray): HashMap<String, Float>? {
-        val responseType: ParameterizedTypeReference<HashMap<String, Float>> = object : ParameterizedTypeReference<HashMap<String, Float>>() {}
+    fun getProbabilities(area: String, image: ByteArray): HashMap<String, Float> {
+        val responseType: ParameterizedTypeReference<HashMap<String, Float>> =
+            object : ParameterizedTypeReference<HashMap<String, Float>>() {}
 
         val restTemplate = RestTemplate()
-        val fooResourceUrl = config.landmark.url
+        val landmarkRecognitionUrl = config.landmark.url
 
         val headers = HttpHeaders()
         headers.contentType = MediaType.APPLICATION_JSON
@@ -26,19 +28,18 @@ class ObjectRecognitionLayer(val config: TfModelsConfig) : RecognitionLayer() {
             headers
         )
 
+        if (config.landmark.mock) {
+            return ObjectRecognitionLayerMock().recognizeObject(area)
+        }
+
         return restTemplate
-            .exchange(
-                fooResourceUrl,
-                HttpMethod.POST,
-                entity,
-                responseType
-            )
-            .body
+            .exchange(landmarkRecognitionUrl, HttpMethod.POST, entity, responseType)
+            .body ?: hashMapOf(Pair("NO_OBJECT", 1f))
     }
 
     override fun getLayerName() = RecognitionLayerName.OBJECT_RECOGNITION
 
-    private class ObjectRecognitionApiRequest(
+    private inner class ObjectRecognitionApiRequest(
         var area: String,
         var image: ByteArray
     )
